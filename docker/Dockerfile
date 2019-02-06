@@ -15,6 +15,9 @@ WORKDIR /bd_build
 COPY ./bd_build /bd_build
 RUN ./prepare.sh
 
+# avoid message "invoke-rc.d: policy-rc.d denied execution of start"
+RUN echo exit 0 > /usr/sbin/policy-rc.d
+
 RUN apt-get install -y --no-install-recommends \
         git-core curl less psmisc \
         software-properties-common \

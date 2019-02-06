@@ -52,33 +52,36 @@
       apt: name=git-core state=latest
 
     - name: install Python
-      apt: name={{item}} state=latest
-      with_items:
-        - python
-        - python-dev
-        - python-virtualenv
-        - python-setuptools
-        - python-pip
+      apt:
+        name:
+          - python
+          - python-dev
+          - python-virtualenv
+          - python-setuptools
+          - python-pip
+        state: latest
 
     - name: install PyBossa build requirements
-      apt: name={{item}} state=latest
-      with_items:
-        - build-essential
-        - libjpeg-dev
-        - libssl-dev
-        - swig
-        - libffi-dev
-        - dbus
-        - libdbus-1-dev
-        - libdbus-glib-1-dev
+      apt:
+        name:
+          - build-essential
+          - libjpeg-dev
+          - libssl-dev
+          - swig
+          - libffi-dev
+          - dbus
+          - libdbus-1-dev
+          - libdbus-glib-1-dev
+        state: latest
 
     - name: install PostgreSQL client
-      apt: name={{item}} state=latest
-      with_items:
-        - postgresql-client
-        - postgresql-server-dev-all
-        - libpq-dev
-        - python-psycopg2
+      apt:
+        name:
+          - postgresql-client
+          - postgresql-server-dev-all
+          - libpq-dev
+          - python-psycopg2
+        state: latest
 
     - name: install Redis
       apt: name=redis-server state=latest
@@ -117,15 +120,25 @@
       become_user: "{{pybossa_user}}"
       pip: name=uwsgi state=latest chdir={{pybossa_path}} virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
 
+    - name: "Downgrading cryptography"
+      become: true
+      become_user: "{{pybossa_user}}"
+      pip: name=cryptography version=2.2.2 chdir={{pybossa_path}} virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
+
     - name: "Install uwsgitop"
       become: true
       become_user: "{{pybossa_user}}"
-      pip: name=uwsgitop state=latest chdir={{pybossa_path}} virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
+      pip: name=uwsgitop version=0.10 chdir={{pybossa_path}} virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
 
     - name: "pip install dj_database_url for use by /ansible_build/reset_pybossa_db.py"
       become: true
       become_user: "{{pybossa_user}}"
       pip: name=dj-database-url state=latest chdir={{pybossa_path}} virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
+
+    - name: "Downgrading oauthlib"
+      become: true
+      become_user: "{{pybossa_user}}"
+      pip: name=oauthlib version=2.1.0 chdir={{pybossa_path}} virtualenv={{virtualenv_path}} virtualenv_site_packages=yes
 
 # Note: Database connection is not known until deployment of image.
 # Database and other secret settings will be in environment variables.
